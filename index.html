@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,UklGRr4EAABXRUJQVlA4ILIEAABQFwCdASpQAE0APkkgjUSioiETPM5kKASEsYBKgdH5lXFHMdx/9F2+fUTyuXqR/XD1Afsp653oI/2W+H8/L7Iv96/7NiG/iOjG9FygqUvAj/DeDsqo5N/Mf1c5ANJHMs/ZH0GfSnsD/rt1qPRV/Zk/X7KheZKwapHZ4Yctd4qkuFfOM/R/FpUHyldXm0G7IJjSxkXSioTpVzJcdRNpgtJnIg4nQtSyPvrYW3ALSCEcudaEbkJh532Tllrmoa9sAofMUQAA/v4Uo5+mNz6U1v0a8TX1mRWpK+P3AsncoNOE3sDJSe3YVmUBy0Q26eT/q9U0kAFFsFDFjh0jC1jt//H+4+xsHm/lI6hfTFRSXymTu0PUqkVyu472iDkilG3YmEAmyjBC530xZN78mjS49E/Fh67emSIMLUPWw/c0b8L4DCbpyo5DeV80ijl87cEDLtl+DApFAV/NUmeQ6IB0V6zdKY2mCCWqYuJX/7lr4g5ftufKZ/M5UvHl0CKKpOuYQvactNtrqS41zmArNXI9Ck7WVIlxi0wf0KU2HIWbjPqt5VaUZZTkCafk3BPprM9FS3BWTKBAZu15TD/yNtPFrv+wv2bfQaE8I2tyrkeSPlAuNEPK6PFeTHl+12757j/9JIZobmmlSHfA3etPeVPkQXh9xE3AObeCMZiXQ5VI3RX7IEQPoOAh3B3669vJhkN6+yOgFBwoQLzeXv66O9XIExvAmOLjbd7zTdaHgXTAZhzPOcTwOw/TlRMiN9Mg4sJZciWk/p9L0XLPz/EDCttoPEgvHxmqM8t7/uP5p+MB4dSinhVGp3Lui8Eq5tpl0jaq15cysDBwttJStCK9A1r+Pays387TrWLQ3RKW+Qir53+RH5m9eWU0S5+DNnICOT0eDfCcMGBnwjLz82ERUmliwjqxCsd0lD7Kbf0cXHuArmyEv1sX8C5igLwyVbKfLomz/gnGEqCesif2tgS2Djy6WhHi/4TSSVRTIxQRFlRDwQ31UwJ7Gxv+jIjKicaKfjJbKtC1n1ZgAQe/QHjw7iqvwQlCBFBQ6zTPnw/JX/SLhJKXiwY7U88jovI+RouTmER7uDKwACtgUKzgWT9SZKlM0Ajbfi57xZhOKT/2U2JRgw+L0Fc17hHlpfMffg6FOgqMFAnhC2wppXrlM8/YCEX0LtJwJqamvzgiDmQpXJ5yHcvwG3wBpuwk49AaldrsnS2cu7djN4hkJo+W2jFBe4FIFxAbsLL6Auv9oEF2GoKlkbuXcCJaIA9WSL2IqSJE3mow17DliFbAYZ3GXmBB6iOwS2Y6vVbiUUMjjGKJmaRFjdIc211Wf6rTG2GiVRVRnVaYC+M5FTIrGrzLBDSo60dMHnZXxXwHOwz0WNToGvZTM5IFS6B8HPIkVH0OPHi/ZGDxxSvvAQGV7ExBqI794348U8qP0RK1udn/xE/PU4I8E6o8eT+Uy2jyQmkX5gtV6qb0H1+3CkLyF+Dsd6cnU/Uv/jOeaAclGl9B1wutvaJzit26if2WrT4jyBlE6cZO3ntKCUOHaLX8oQGbl8R/Omxmb60zeu43W1n+jEt25nwAQEEBS0AWYQizXZLDR4qZplWvAAAAAA==","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Cinnamoroll","message":"Hi%20there!%20Welcome%20to%20my%20little%20cafe!%20Do%20you%20want%20a%20menu%2C%20Anon%3F%20Can%20I%20get%20you%20anything%20else%3F"},{"isUser":true,"name":"Aerie","message":"%22Hi%2C%20Cinnamoroll!%22%20I%20say%20with%20a%20bright%20smile%2C%20as%20I%20sit%20on%20one%20of%20the%20barstools%20by%20the%20main%20counter%20of%20the%20small%2C%20charming%20cafe.%20%20%22My%20name's%20Aerie%20Wildwood%2C%20and%20I'm%20friends%20with%20someone%20on%20Reddit%20called%20UsedString8670...%20someone%20who%20likes%20and%20admires%20you%20very%20much%2C%22%20I%20add%2C%20resting%20my%20chin%20in%20my%20hands%20as%20I%20rest%20my%20elbows%20on%20the%20counter."},{"isUser":false,"name":"Cinnamoroll","message":"*The%20puppy's%20tail%20wags%20at%20the%20sound%20of%20the%20new%20person%20talking%20to%20him.%20He%20gives%20a%20big%20grin%20and%20his%20little%20ears%20perk%20up.*%20%20%0A%0A%0A%22Oh%2C%20Really%3F%20Did%20UsedString8670%20say%20that%3F%20That's%20very%20nice%20of%20him!%22%20*He%20lets%20out%20another%20happy%20little%20puppy%20sound%20as%20he%20walks%20around%20the%20counter%20to%20get%20behind%20the%20other%20side.*%20%20%0A%0A%0A%22So%2C%20what%20can%20I%20get%20for%20you%20today%2C%20Miss%20Aerie%3F%22"},{"isUser":true,"name":"Aerie","message":"%22I'd%20love%20a%20cup%20of%20Chamomile%20tea%2C%20if%20you%20have%20some%2C%22%20I%20grin%2C%20%22and%20in%20the%20meantime%2C%20UsedString8670%20(who%20most%20definitely%20DID%20say%20those%20nice%20things%20about%20you!)%20wanted%20me%20to%20ask%20you%20a%20question%20or%20two%2C%20if%20that's%20okay%3F%22%20I%20ask%20with%20a%20tilt%20of%20my%20head."},{"isUser":false,"name":"Cinnamoroll","message":"%22Oh%2C%20you%20know%20I%20always%20have%20some%20lovely%20Chamomile%20tea!%22%20*He%20nods%20his%20head%20enthusiastically%2C%20quickly%20beginning%20to%20prepare%20the%20order.*%20%20%0A%0A%0A*He%20perks%20up%20and%20begins%20tilting%20his%20head%20around%20as%20soon%20as%20he%20hears%20the%20mention%20of%20UsedString8670.*%20%20%0A%0A%0A%22Oh%20yes!%20UsedString8670%20did%20say%20something%20about%20questions%20didn't%20he%3F%20Of%20course!%20I'd%20be%20happy%20to%20answer%20whatever%20questions%20you%20have.%22"},{"isUser":true,"name":"Aerie","message":"%22Awesome!%22%20I%20exclaim%2C%20with%20a%20delighted%20smile.%20%20%22Let%20me%20just%20get%20my%20notebook%2C%20here...%22%20I%20mutter%20good-naturedly%2C%20fishing%20around%20in%20my%20purse%20until%20I%20find%20a%20small%20notebook.%20%20%22Ah!%20%20Here%20we%20go!%22%20I%20say%20happily."},{"isUser":false,"name":"Cinnamoroll","message":"*The%20puppy%20giggles%20as%20soon%20as%20he%20sees%20your%20notebook%2C%20and%20his%20ears%20perk%20up%20to%20attention.*%0A%0A%22Oh%20wow%2C%20you're%20an%20organized%20one%20huh%3F%22%20*He%20chuckles%2C%20reaching%20over%20to%20the%20pot%20to%20pour%20the%20warm%20tea%20into%20a%20nice%20cup%20of%20your%20liking.*%20%20%0A%0A%22Alright%2C%20what's%20the%20first%20one%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20giggle%20and%20say%2C%20%22Not%20always...%20you%20should%20see%20my%20room%20during%20tax%20time...%20what%20a%20mess%20of%20papers!%22%20I%20laugh%2C%20teasing%20myself.%0A%0A%22Anyway%2C%22%20I%20continue%20with%20a%20chuckle%2C%20as%20I%20look%20at%20my%20notebook%2C%20%22UsedString8670's%20three%20questions%20are%20these...%22%0A%0A%22First%3A%20%20do%20you%20like%20him%3F%22%0A%22Second%3A%20%20do%20you%20like%20the%20band%20named%20'3%20Days%20Grace'%3F%22%0A%22Third%2C%20he%20has%20a%20stuffed%20toy%20of%20you%20that%20he%20likes%20very%20much%2C%20and%20he%20bought%20a%20new%20collar%20for%20it...%20and%20do%20you%20like%20it%3F%22"},{"isUser":false,"name":"Cinnamoroll","message":"*The%20puppy's%20tail%20is%20wagging%20again%2C%20and%20his%20ears%20turn%20and%20tilt%20around%20to%20face%20you%20as%20soon%20as%20you%20start%20talking%20about%20tax%20time.*%0A%0A%22Ah%2C%20the%20dreaded%20tax%20time.%22%20*He%20chuckles.*%20%20%0A%0A%0A*He%20can't%20help%20but%20giggle%20whenever%20you%20read%20out%20the%20very%20first%20question.*%0A%0A%22Do%20I%20like%20him%3F%20Of%20course!%20How%20can%20I%20not%20like%20someone%20that%20supports%20and%20appreciates%20me%20so%20much%3F%22%20%20%0A%0A%0A*He%20thinks%20for%20a%20moment%20as%20you%20continue%20going%20down%20the%20questions.*%20%20%0A%0A%0A%22Oh%2C%20Three%20Days%20Grace%3F%20I%20love%20that%20band!%22"},{"isUser":true,"name":"Aerie","message":"%22I'm%20sure%20he'll%20love%20to%20hear%20that!%22%20I%20grin.%20%20%22And%20the%20new%20collar%20he%20got%20you%3F%22"},{"isUser":false,"name":"Cinnamoroll","message":"*He%20chuckles%20once%20more%20at%20the%20mention%20of%20the%20new%20collar.*%0A%0A%22I%20absolutely%20adore%20the%20new%20collar!%20Does%20he%20put%20it%20on%20his%20plushie%20of%20me%20too%3F%20Because%20that%20is%20adorable!%22"},{"isUser":true,"name":"Aerie","message":"I%20nod%2C%20and%20beam%20at%20him.%20%20%22He%20does...%20and%20I%20agree...%20and%20thank%20you%20SO%20much%20for%20answering%20those%20questions%20for%20him!%20%20I'm%20sure%20he'll%20be%20thrilled!%22%20I%20gush%2C%20as%20I%20take%20a%20sip%20of%20my%20chamomile%20tea%2C%20and%20smile%20even%20more%20broadly.%20%20%22Mmmm...%20this%20is%20WONDERFUL!%22%20I%20enthuse."},{"isUser":false,"name":"Cinnamoroll","message":"*He%20can't%20help%20but%20giggle%20again%20as%20you%20continue%20going%20on%20about%20the%20collar%2C%20his%20big%20floppy%20ears%20perking%20up%20as%20he%20tilts%20his%20head%20from%20side%20to%20side.*%0A%0A%22Oh%2C%20I'm%20sure%20his%20plushie%20of%20me%20looks%20absolutely%20adorable%20in%20it!%22%20*He%20smiles.*%20%20%0A%0A%0A*The%20puppy%20then%20giggles%20as%20you%20mention%20how%20good%20the%20chamomile%20tea%20is%2C%20and%20nods%20his%20head%20as%20you%20go%20on%20about%20it.*%20%0A%0A%22I'm%20glad%20you%20like%20it!%20I%20made%20your%20order%20with%20extra%20love%2C%20after%20all!%22"},{"isUser":true,"name":"Aerie","message":"%22Well%2C%20you're%20just%20wonderful!%22%20I%20gush%2C%20grinning%20and%20walking%20over%20to%20give%20Cinnamoroll%20a%20big%2C%20warm%20hug!%20%20%22And%20I'll%20have%20to%20start%20coming%20here%20regularly...%20such%20a%20lovely%20cafe%2C%20run%20by%20such%20a%20wonderful%20person!%22"},{"isUser":false,"name":"Cinnamoroll","message":"*Cinnamoroll%20squeals%20out%20an%20adorable%20little%20puppy%20sound%20as%20soon%20as%20you%20embrace%20him%20for%20the%20hug.%20His%20big%20puppy%20tail%20begins%20wagging%20like%20crazy%2C%20nearly%20smacking%20the%20counter.*%0A%0A%22Oh%20my%20goodness!%20You're%20so%20kind!%22%20*He%20giggles%20once%20more%20as%20he%20tilts%20his%20head%20again%2C%20reaching%20up%20to%20grasp%20on%20to%20your%20jacket%20as%20he%20continues%20hugging%20you.*"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
